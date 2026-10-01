@@ -1,0 +1,23 @@
+{
+  "name": "learn",
+  "version": "1.0.0",
+  "description": "i learn",
+  "homepage": "https://github.com/phuocnguyn203-wq/learn#readme",
+  "bugs": {
+    "url": "https://github.com/phuocnguyn203-wq/learn/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phuocnguyn203-wq/learn.git"
+  },
+  "license": "ISC",
+  "author": "John",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chance": "^1.1.13"
+  }
+}
