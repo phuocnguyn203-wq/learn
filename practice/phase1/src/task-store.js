@@ -37,13 +37,12 @@ export default class TaskStore extends EventEmitter {
         this.emit("added", task, time);
     }
 
-    async list() {
+    *list() {
         for(const task of this.taskList) {
             if (task == null) {
                 continue;
             }
-            const doneStr = task.completedAt ? "[x]" : "[ ]";
-            console.log(`#${task.id} ${doneStr} ${task.title}`)
+            yield task
         }
     }
 
