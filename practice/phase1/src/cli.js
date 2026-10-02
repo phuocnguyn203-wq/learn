@@ -33,9 +33,10 @@ switch (command) {
             process.exit(1);
         }
         for (const t of taskStore.list()) {
-            const statusStr = t["completedAt"] ? "[X]" : "[ ]"
+            const completedAt = t["completedAt"]
+            const statusStr = completedAt ? "[X]" : "[ ]"
             const idStr = String(t["id"]).padStart(10, "-")
-            const completedAtStr = t["completedAt"] ? t["completedAt"] : "-".padStart(24, "-")
+            const completedAtStr = completedAt ? completedAt : "-".padStart(24, "-")
             console.log(`${idStr} ${t["title"].padStart(20, "-")} ${statusStr} ${t["createdAt"]} ${completedAtStr}`)
         }
         break;
