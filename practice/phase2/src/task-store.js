@@ -29,14 +29,16 @@ export default class TaskStore extends EventEmitter {
 			if (t == null) { continue; }
 			if (t["id"] === id) { return t; }
 		}
-		return {};
+		return null;
 	}
 
-	async add(taskName) {
+	async add(taskName, priority, dueDate) {
 		const time = new Date();
 		const task = {
 			"id": this.taskList.length + 1,
 			"title": taskName,
+			"priority": priority,
+			"dueDate": dueDate,
 			"createdAt": time.toISOString(),
 			"completedAt": null
 		};
