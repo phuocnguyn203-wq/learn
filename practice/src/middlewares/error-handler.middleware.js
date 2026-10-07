@@ -1,4 +1,4 @@
-import { AppError } from "../app-error.js";
+import { AppError } from "../errors/app-error.js";
 const errorHandlerMiddleware = (err, _req, res, _next) => {
   if (err instanceof AppError) {
 		return res.status(err.statusCode).json({

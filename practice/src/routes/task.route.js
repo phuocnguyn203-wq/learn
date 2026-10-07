@@ -19,13 +19,13 @@ const idValidator = validate(TaskId, "params");
 
 
 
-export default function createTaskRouter(taskStore, projectStore) {
+export default function createTaskRouter(taskService) {
   const router = express.Router();
-  router.get("/:id", idValidator, getTaskById(taskStore));
-  router.get("/", taskQueryValidator, getTaskByQuery(taskStore, projectStore));
-  router.post("/", taskValidator, createTask(taskStore, projectStore));
-  router.put("/:id", idValidator, taskUpdateValidator, modifyTask(taskStore));
-  router.delete("/:id", idValidator, deleteTask(taskStore));
+  router.get("/:id", idValidator, getTaskById(taskService));
+  router.get("/", taskQueryValidator, getTaskByQuery(taskService));
+  router.post("/", taskValidator, createTask(taskService));
+  router.put("/:id", idValidator, taskUpdateValidator, modifyTask(taskService));
+  router.delete("/:id", idValidator, deleteTask(taskService));
 
   return router;
 }

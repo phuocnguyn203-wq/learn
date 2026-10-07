@@ -13,6 +13,12 @@ export class NotFoundError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  constructor(message = "Conflict") {
+    super(409, "CONFLICT", message);
+  }
+}
+
 export class ValidationError extends AppError {
   constructor(details, message="validation error") {
     super(400, "VALIDATION_ERROR", message);

@@ -1,54 +1,32 @@
-function getAllProject(projectStore) {
+function getAllProject(projectService) {
   return (_req, res) => {
-    const projects = projectStore.fetchAllProjects();
-    res.writeHead(200, { "Content-Type": "application/json"});
-    res.write("[");
-    let first = true;
-    for (const p of projects) {
-      if (first) {
-        first = false;
-      } else {
-        res.write(",");
-      }
-      res.write(JSON.stringify(p));
-    }
-    res.end("]");
-  }
+    res.status(200).json(projectService.list());
+  };
 }
 
-function getProjectById(projectStore) {
+function getProjectById(projectService) {
   return (req, res) => {
-    const p = projectStore.fetchProjectById(req.validated.params.id);
-    if (p == null) { throw new NotFoundError("project not found"); }
-    return res.status(200).json(JSON.stringify(p));
-  }
+    res.status(200).json(projectService.getById(req.validated.params.id));
+  };
 }
 
-function createProject(projectStore) {
+function createProject(projectService) {
   return async (req, res) => {
-    const project = req.validated.body;
-    const p = await projectStore.createProject(
-      project["name"],
-      project["description"],
-    )
-    return res.status(200).json(JSON.stringify(p));
-  }
+    res.status(201).json(await projectService.create(req.validated.body));
+  };
 }
 
-function modifyProject(projectStore) {
+function modifyProject(projectService) {
   return async (req, res) => {
-    const result = await projectStore.updateProject(req.validated.params.id, req.validated.body);
-    if (result == null) { throw new NotFoundError("project not found"); }
-    return res.status(200).json(JSON.stringify(result));
-  }
+    res.status(200).json(await projectService.update(req.validated.params.id, req.validated.body));
+  };
 }
 
-function deleteProject(projectStore) {
+function deleteProject(projectService) {
   return async (req, res) => {
-    const result = await projectStore.deleteProject(req.validated.params.id);
-    if (result == false) { throw new NotFoundError("project not found"); }
-    return res.status(204).end();
-  }
+    await projectService.delete(req.validated.params.id);
+    res.status(204).end();
+  };
 }
 
 export {
