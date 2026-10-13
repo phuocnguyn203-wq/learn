@@ -4,8 +4,6 @@ accepts any type, any makes ts
 not to check type, which is problem
 */
 
-import { keyof } from "zod";
-
 function map(a: any) {
   return a;
 }
