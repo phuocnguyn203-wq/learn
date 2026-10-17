@@ -9,7 +9,7 @@ interface Task {
 
 type Key = "status" | "priority" | "projectId";
 
-function groupby<K extends Key>(items: Task[], key: K) {
+function groupBy<K extends Key>(items: Task[], key: K) {
   const result: {
     [k in Task[K]]?: Task[];
   } = {};
@@ -96,18 +96,43 @@ function paginate<T>(items: T[], page: number, limit: number) {
   }
 }
 
-const page = paginate(tasks, 1, 10);
-console.log(page.data[0].title);
+type Result<T, E> = SuccessRes<T> | FailureRes<E>;
 
-function parseTaskId(input: string) {
-  const numberInput = Number(input);
-  if (! Number.isInteger(numberInput)) {
+type SuccessRes<T> = {
+  value: T;
+  ok: true;
+}
+
+type FailureRes<E> = {
+  error: E;
+  ok: false; 
+}
+
+function parseTaskId(input: string): Result<number, Error> {
+  const num = Number(input);
+  if (Number.isInteger(num)) {
     return {
-      ok: false
+      value: num,
+      ok: true
     }
   }
   return {
-    data: numberInput,
-    ok: true
-  };
+    error: new Error("input must be integer"),
+    ok: false,
+  }
 }
+
+const groups = groupBy(tasks, 'status');
+// rê chuột vào groups: thấy type được suy ra là nhóm của Task[], không phải any
+
+//groupBy(tasks, 'abc');
+// ❌ lỗi biên dịch: 'abc' không phải thuộc tính của Task
+
+const page = paginate(tasks, 1, 10);
+page.data[0].title;          // ✅ TS biết đây là Task
+
+const r = parseTaskId('abc');
+//r.value;                     // ❌ lỗi biên dịch: phải kiểm tra thành công/thất bại trước
+if (r.ok) r.value;           // ✅ number
+
+
