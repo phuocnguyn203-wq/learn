@@ -1,7 +1,10 @@
 import { NotFoundError, ConflictError } from "../errors/app-error.js";
-
+import { ProjectRepository, TaskRepository } from "../repositories/repository.types.js";
+import { ProjectCreateInput, ProjectUpdateInput } from "../schemas/project.schema.js";
 export default class ProjectService {
-  constructor(projectRepo, taskRepo) {
+  projectRepo: ProjectRepository;
+  taskRepo: TaskRepository;
+  constructor(projectRepo: ProjectRepository, taskRepo: TaskRepository) {
     this.projectRepo = projectRepo;
     this.taskRepo = taskRepo;
   }
@@ -10,13 +13,13 @@ export default class ProjectService {
     return this.projectRepo.findAll();
   }
 
-  getById(id) {
+  getById(id: number) {
     const project = this.projectRepo.findById(id);
     if (project === null) { throw new NotFoundError("project not found"); }
     return project;
   }
 
-  create({ name, description }) {
+  create({ name, description }: ProjectCreateInput) {
     return this.projectRepo.create({
       name,
       description,
@@ -24,13 +27,13 @@ export default class ProjectService {
     });
   }
 
-  async update(id, fields) {
+  async update(id: number, fields: ProjectUpdateInput) {
     const project = await this.projectRepo.update(id, fields);
     if (project === null) { throw new NotFoundError("project not found"); }
     return project;
   }
 
-  async delete(id) {
+  async delete(id: number) {
     this.getById(id);
     if (this.taskRepo.countByProjectId(id) > 0) {
       throw new ConflictError("project still has tasks");

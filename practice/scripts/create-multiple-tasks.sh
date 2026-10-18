@@ -1,5 +1,6 @@
 priorities=("low" "medium" "high")
 for i in {1..100}; do
-  name="Task $i" priority=${priorities[RANDOM % ${#priorities[@]}]} dueDate=2026-10-10 \
-  bash create-tasks.sh $projectId
+  projectId=$projectId title="Task $i" \
+  priority=${priorities[RANDOM % 3]} dueDate=2026-12-31 \
+  bash create-tasks.sh
 done

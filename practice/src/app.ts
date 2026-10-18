@@ -6,8 +6,12 @@ import { requestLoggerMiddleware } from "./middlewares/request-logger.middleware
 
 import createProjectRouter from "./routes/project.route.js";
 import createTaskRouter from "./routes/task.route.js";
+import TaskService from "./services/task.service.js";
+import ProjectService from "./services/project.service.js";
 
-export default function createApp({ taskService, projectService }) {
+export default function createApp(
+  { taskService, projectService}: { taskService: TaskService, projectService: ProjectService }
+) {
   const app = express();
 
   //MIDDLEWARE

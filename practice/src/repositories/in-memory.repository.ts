@@ -1,5 +1,8 @@
-export class InMemoryRepository {
-  constructor(items = []) {
+import type { TaskQueryInput, TaskData } from "../schemas/task.schema.js";
+import { TaskRepository } from "./repository.types.js";
+export class InMemoryRepository<T>{
+  items: (T & { id: number })[];
+  constructor(items: (T & { id: number })[] = []) {
     this.items = items;
   }
 
@@ -15,18 +18,18 @@ export class InMemoryRepository {
     return this.items;
   }
 
-  findById(id) {
+  findById(id: number) {
     return this.items.find((item) => item.id === id) ?? null;
   }
 
-  async create(data) {
+  async create(data: T) {
     const item = { id: this.getNewId(), ...data };
     this.items.push(item);
     await this.save();
     return item;
   }
 
-  async update(id, fields) {
+  async update(id: number, fields: Partial<T>) {
     const item = this.findById(id);
     if (item === null) { return null; }
     Object.assign(item, fields);
@@ -34,7 +37,7 @@ export class InMemoryRepository {
     return item;
   }
 
-  async delete(id) {
+  async delete(id: number) {
     const idx = this.items.findIndex((item) => item.id === id);
     if (idx === -1) { return false; }
     this.items.splice(idx, 1);
@@ -43,21 +46,29 @@ export class InMemoryRepository {
   }
 }
 
-export class InMemoryTaskRepository extends InMemoryRepository {
-  findMany({ projectId, status, sort, page, limit }) {
+export class InMemoryTaskRepository extends InMemoryRepository<TaskData> implements TaskRepository {
+  findMany({ projectId, status, sort, page, limit }: TaskQueryInput) {
     const tasks = this.items.filter(
       (t) => t.projectId === projectId && (!status || t.status === status)
     );
-    const key = sort.replace("-", "");
+    const key = sort.endsWith("createdAt") ? "createdAt" : "dueDate";
     const dir = sort.startsWith("-") ? -1 : 1;
-    tasks.sort((a, b) => dir * (new Date(a[key]) - new Date(b[key])));
+    tasks.sort((a, b) => {
+      if (a[key] === b[key]) { return 0;}
+
+      if (a[key] === undefined) { return 1; }
+
+      if (b[key] === undefined) { return -1; }
+
+      return dir * (a[key] >= b[key] ? 1 : -1);
+    });
     return {
       items: tasks.slice((page - 1) * limit, page * limit),
       total: tasks.length,
     };
   }
 
-  countByProjectId(projectId) {
+  countByProjectId(projectId: number) {
     return this.items.filter((t) => t.projectId === projectId).length;
   }
 }

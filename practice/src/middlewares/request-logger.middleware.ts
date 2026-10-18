@@ -1,5 +1,6 @@
 import { performance } from "node:perf_hooks";
-const requestLoggerMiddleware = (req, res, next) => {
+import type { Request, Response, NextFunction } from "express";
+const requestLoggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const method = req.method;
   const path = req.path;
   const startInMs = performance.now();

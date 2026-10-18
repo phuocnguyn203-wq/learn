@@ -2,18 +2,18 @@ import { InMemoryRepository, InMemoryTaskRepository } from "./repositories/in-me
 import { JsonFileRepository, JsonFileTaskRepository } from "./repositories/json-file.repository.js";
 import TaskService from "./services/task.service.js";
 import ProjectService from "./services/project.service.js";
-
+import { ProjectData } from "./schemas/project.schema.js";
 function createInMemoryRepos() {
   return {
     taskRepo: new InMemoryTaskRepository(),
-    projectRepo: new InMemoryRepository(),
+    projectRepo: new InMemoryRepository<ProjectData>(),
   };
 }
 
 async function createJsonFileRepos() {
   return {
-    taskRepo: await JsonFileTaskRepository.create("../data/task.json"),
-    projectRepo: await JsonFileRepository.create("../data/project.json"),
+    taskRepo: await JsonFileTaskRepository.create("practice/data/task.json"),
+    projectRepo: await JsonFileRepository.create("practice/data/project.json"),
   };
 }
 

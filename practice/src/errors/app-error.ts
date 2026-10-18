@@ -1,5 +1,8 @@
 export class AppError extends Error {
-  constructor(statusCode, code, message) {
+  statusCode: number;
+  code: string;
+  name: string;
+  constructor(statusCode: number, code: string, message: string) {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
@@ -19,8 +22,14 @@ export class ConflictError extends AppError {
   }
 }
 
+export type Details = {
+  field: string;
+  message: string;
+}
+
 export class ValidationError extends AppError {
-  constructor(details, message="validation error") {
+  details: Details[]
+  constructor(details: Details[], message="validation error") {
     super(400, "VALIDATION_ERROR", message);
     this.details = details;
   }
