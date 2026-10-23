@@ -476,6 +476,8 @@ todoTask.completedAt          // ❌ lỗi biên dịch
 
 - Cài PostgreSQL, dùng psql hoặc DBeaver.
 - `sql/schema.sql`: tạo bảng `users`, `projects`, `tasks`, `labels`, `task_labels`.
+  - `labels`: `id` (PK), `project_id` (FK → `projects`, mỗi project có bộ nhãn riêng), `name`, `color` (tùy chọn). `UNIQUE (project_id, name)`. Không có `task_id`.
+  - `task_labels`: `task_id` (FK → `tasks`), `label_id` (FK → `labels`), `PRIMARY KEY (task_id, label_id)`.
 - `sql/seed.sql`: dữ liệu mẫu nhỏ (~5 user, 10 project, 50 task), cố ý tạo đủ tình huống: task quá hạn, project không có task, task có nhiều label.
 - `sql/queries.sql`: 8 query, mỗi query có comment ghi câu hỏi:
 
