@@ -9,16 +9,16 @@ import TaskService from "../services/task.service.js";
 import parseOrThrow from "../middlewares/validate.middleware.js";
 
 function getTaskById(taskService: TaskService) {
-  return (req: Request, res: Response) => {
+  return async (req: Request, res: Response) => {
     const { id } = parseOrThrow(TaskId, req.params, "params");
-    res.status(200).json(taskService.getById(id));
+    res.status(200).json(await taskService.getById(id));
   };
 }
 
 function getTaskByQuery(taskService: TaskService) {
-  return (req: Request, res: Response) => {
+  return async (req: Request, res: Response) => {
     const query = parseOrThrow(TaskQuery, req.query, "query");
-    res.status(200).json(taskService.list(query));
+    res.status(200).json(await taskService.list(query));
   };
 }
 

@@ -13,14 +13,14 @@ export default class ProjectService {
     return this.projectRepo.findAll();
   }
 
-  getById(id: number) {
-    const project = this.projectRepo.findById(id);
+  async getById(id: number) {
+    const project = await this.projectRepo.findById(id);
     if (project === null) { throw new NotFoundError("project not found"); }
     return project;
   }
 
-  create({ name, description }: ProjectCreateInput) {
-    return this.projectRepo.create({
+  async create({ name, description }: ProjectCreateInput) {
+    return await this.projectRepo.create({
       name,
       description,
       createdAt: new Date().toISOString(),
@@ -34,8 +34,8 @@ export default class ProjectService {
   }
 
   async delete(id: number) {
-    this.getById(id);
-    if (this.taskRepo.countByProjectId(id) > 0) {
+    await this.getById(id);
+    if (await this.taskRepo.countByProjectId(id) > 0) {
       throw new ConflictError("project still has tasks");
     }
     await this.projectRepo.delete(id);

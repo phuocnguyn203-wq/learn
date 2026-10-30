@@ -9,21 +9,21 @@ export default class TaskService {
     this.projectRepo = projectRepo;
   }
 
-  assertProjectExists(projectId: number) {
-    if (this.projectRepo.findById(projectId) === null) {
+  async assertProjectExists(projectId: number) {
+    if (await this.projectRepo.findById(projectId) === null) {
       throw new NotFoundError("project not found");
     }
   }
 
-  getById(id: number) {
-    const task = this.taskRepo.findById(id);
+  async getById(id: number) {
+    const task = await this.taskRepo.findById(id);
     if (task === null) { throw new NotFoundError("task not found"); }
     return task;
   }
 
-  list(query: TaskQueryInput) {
-    this.assertProjectExists(query.projectId);
-    const { items, total } = this.taskRepo.findMany(query);
+  async list(query: TaskQueryInput) {
+    await this.assertProjectExists(query.projectId);
+    const { items, total } = await this.taskRepo.findMany(query);
     return {
       data: items,
       meta: {
@@ -35,9 +35,9 @@ export default class TaskService {
     };
   }
 
-  create({ projectId, title, priority, dueDate }: TaskCreateInput) {
-    this.assertProjectExists(projectId);
-    return this.taskRepo.create({
+  async create({ projectId, title, priority, dueDate }: TaskCreateInput) {
+    await this.assertProjectExists(projectId);
+    return await this.taskRepo.create({
       projectId,
       title,
       priority,

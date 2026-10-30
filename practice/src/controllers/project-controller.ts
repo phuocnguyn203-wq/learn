@@ -7,15 +7,15 @@ import {
   UpdateProject,
 } from "../schemas/project.schema.js";
 function getAllProject(projectService: ProjectService) {
-  return (_req: Request, res: Response) => {
-    res.status(200).json(projectService.list());
+  return async (_req: Request, res: Response) => {
+    res.status(200).json(await projectService.list());
   };
 }
 
 function getProjectById(projectService: ProjectService) {
-  return (req: Request, res: Response) => {
+  return async (req: Request, res: Response) => {
     const { id } = parseOrThrow(ProjectId, req.params, "params");
-    res.status(200).json(projectService.getById(id));
+    res.status(200).json(await projectService.getById(id));
   };
 }
 
