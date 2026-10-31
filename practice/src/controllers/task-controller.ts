@@ -4,6 +4,7 @@ import {
   TaskQuery,
   Task,
   UpdateTask,
+  TargetProjectId
 } from "../schemas/task.schema.js";
 import TaskService from "../services/task.service.js";
 import parseOrThrow from "../middlewares/validate.middleware.js";
@@ -45,10 +46,20 @@ function deleteTask(taskService: TaskService) {
   };
 }
 
+function move(taskService: TaskService) {
+  return async (req: Request, res: Response) => {
+    const { id: taskId } = parseOrThrow(TaskId, req.params, "params")
+    const { targetProjectId: projectId } = parseOrThrow(TargetProjectId, req.body, "body")
+    const result = await taskService.move(taskId, projectId)
+    res.status(200).json(result)
+  }
+}
+
 export {
   getTaskById,
   getTaskByQuery,
   createTask,
   modifyTask,
   deleteTask,
+  move
 };

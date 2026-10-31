@@ -1,6 +1,6 @@
 import type { TaskRepository } from "./repository.types.ts"
 import type { Task } from "../../generated/prisma/client.js"
-import { TaskData, TaskQueryInput } from "../schemas/task.schema.js";
+import { TaskData, TaskQueryInput } from "../schemas/task.schema.js"
 import type { PrismaClient } from "../../generated/prisma/client.js"
 
 function toTask(row: Task) {
@@ -16,9 +16,9 @@ export class TaskPrismaRepository implements TaskRepository {
   constructor(client: PrismaClient) {
     this.client = client;
   }
-  async countByProjectId(projectId: number): Promise<number> {
+  async countByProjectId(projectId: number, status?: "done" | "in_progress" | "todo"): Promise<number> {
     const result = await this.client.task.count({
-      where: {projectId: projectId}
+      where: { projectId, status}
     })
     return result
   }
@@ -79,5 +79,20 @@ export class TaskPrismaRepository implements TaskRepository {
       where: {id: id}
     })
     return row.count !==0 ? true : false
+  }
+
+  async move(taskId: number, projectId: number) {
+    const currentTask = await this.findById(taskId);
+    const destProject = await this.client.project.findUnique({
+      where: { id: projectId }
+    })
+
+    if (!(currentTask && destProject)) { return null; }
+    const [row] = await this.client.$transaction([
+      this.client.task.update({ where: { id: taskId }, data: { projectId } }),
+      this.client.activity.create({ data: { taskId, fromProjectId: currentTask.projectId, toProjectId: projectId } }),
+    ]);
+
+    return toTask(row)
   }
 }

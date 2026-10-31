@@ -39,13 +39,17 @@ const StoredTask = Task.omit({ dueDate: true }).extend({
 
 const TaskId = z.object({ id: z.coerce.number().int().min(0) });
 
+const TargetProjectId = z.object({ targetProjectId: z.coerce.number().int().min(0) })
+
+
 export {
   TaskQuery,
   Task,
   TaskId,
   UpdateTask,
-  StoredTask
-};
+  StoredTask,
+  TargetProjectId
+}
 
 type TaskCreateInput = z.infer<typeof Task>;
 type TaskQueryInput = z.infer<typeof TaskQuery>;

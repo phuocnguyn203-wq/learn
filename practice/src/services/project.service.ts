@@ -9,8 +9,16 @@ export default class ProjectService {
     this.taskRepo = taskRepo;
   }
 
-  list() {
-    return this.projectRepo.findAll();
+  async list() {
+    const result = []
+    const projects = await this.projectRepo.findAll();
+    for (const proj of projects) {
+      const taskCount = await this.taskRepo.countByProjectId(proj.id);
+      const doneCount = await this.taskRepo.countByProjectId(proj.id, "done")
+      result.push({ ...proj, taskCount, doneCount })
+    }
+
+    return result
   }
 
   async getById(id: number) {

@@ -12,7 +12,8 @@ interface ProjectRepository extends Repository<ProjectData> {}
 
 interface TaskRepository extends Repository<TaskData> {
   findMany(query: TaskQueryInput): Promise<{ items: (TaskData & { id: number })[], total: number }>;
-  countByProjectId(projectId: number): Promise<number>;
+  countByProjectId(projectId: number, status?: "done" | "in_progress" | "todo"): Promise<number>;
+  move(taskId: number, targetProjectId: number): Promise<TaskData  & { id: number } | null>
 }
 
 export { ProjectRepository, TaskRepository}

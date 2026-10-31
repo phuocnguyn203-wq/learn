@@ -66,4 +66,13 @@ export default class TaskService {
       throw new NotFoundError("task not found");
     }
   }
+
+  async move(taskId: number, projectId: number) {
+    const result = await this.taskRepo.move(taskId, projectId)
+    if (result == null) {
+      throw new NotFoundError("project or task not found")
+    }
+
+    return result
+  }
 }

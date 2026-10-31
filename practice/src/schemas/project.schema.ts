@@ -10,7 +10,7 @@ const UpdateProject = z.object({
   description: z.string().trim().min(1).optional(),
 })
 
-const ProjectId = z.object({ id: z.coerce.number().int().min(0) });
+const ProjectId = z.object({ id: z.coerce.number().int().min(0) })
 
 const StoredProject = Project.extend({
   id: z.number(),

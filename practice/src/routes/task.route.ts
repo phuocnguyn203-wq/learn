@@ -5,7 +5,8 @@ import {
   getTaskByQuery,
   createTask,
   modifyTask,
-  deleteTask
+  deleteTask,
+  move
 } from "../controllers/task-controller.js";
 
 import TaskService from "../services/task.service.js";
@@ -17,6 +18,7 @@ export default function createTaskRouter(taskService: TaskService) {
   router.post("/", createTask(taskService));
   router.put("/:id", modifyTask(taskService));
   router.delete("/:id",  deleteTask(taskService));
+  router.post("/:id/move", move(taskService));
 
   return router;
 }
