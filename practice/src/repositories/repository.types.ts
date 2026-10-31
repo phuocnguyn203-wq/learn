@@ -18,4 +18,22 @@ interface TaskRepository extends Repository<TaskData> {
   move(taskId: number, targetProjectId: number): Promise<TaskData  & { id: number } | null>
 }
 
-export { ProjectRepository, TaskRepository}
+type UserRow = { id: number, email: string, hashedPassword: string, createdAt: string };
+interface UserRepository {
+  findByEmail(email: string): Promise<UserRow | null>
+  findById(id: number): Promise<UserRow | null>
+  create(email: string, name: string, hashedPassword: string): Promise<UserRow>
+}
+
+type RefreshTokenRow = { id: number, userId: number, tokenHash: string, expiresAt: string, revokedAt: string | null };
+
+interface AuthRepository {
+  create(userId: number, tokenHash: string): Promise<RefreshTokenRow>
+  findByHash(tokenHash: string): Promise<RefreshTokenRow | null>
+  rotate(oldId: number, userId: number, newHash: string): Promise<RefreshTokenRow | null>
+  revoke(id: number): Promise<void>
+  revokeAllByUser(userId: number): Promise<void>
+}
+
+export { UserRow }
+export { ProjectRepository, TaskRepository, UserRepository, AuthRepository }

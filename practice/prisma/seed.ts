@@ -18,6 +18,7 @@ await prisma.user.createMany({
   data: Array.from({ length: USERS }, (_, i) => ({
     email: `user${i + 1}@example.com`,
     hashedPassword: "not-a-real-hash",
+    name: faker.person.fullName()
   })),
 });
 

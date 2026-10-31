@@ -12,14 +12,22 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  admin
+  user
+}
+
 model User {
   id             Int             @id @default(autoincrement())
   email          String          @unique
+  role           UserRole        @default(user)
+  name           String          @default("")
   hashedPassword String          @map("hashed_password")
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   projects       Project[]
   memberships    ProjectMember[]
   assignedTasks  Task[]
+  refreshTokens  RefreshToken[]
 
   @@map("users")
 }
@@ -126,6 +134,19 @@ model Activity {
   fromProject Project @relation("fromProject", fields: [fromProjectId], references: [id], onDelete: Cascade)
   toProject   Project @relation("toProject", fields: [toProjectId], references: [id], onDelete: Cascade)
 
-  @@map("activities")
   @@index([taskId])
+  @@map("activities")
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @default(dbgenerated("(NOW() + INTERVAL '7 days')")) @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+  @@index([userId])
 }

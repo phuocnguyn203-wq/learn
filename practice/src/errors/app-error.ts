@@ -34,3 +34,9 @@ export class ValidationError extends AppError {
     this.details = details;
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message="refresh token reused") {
+    super(401, "UNAUTHORIZED_ERROR", message)
+  }
+}
