@@ -8,7 +8,9 @@ interface Repository<T> {
   delete(id: number): Promise<boolean>;
 }
 
-interface ProjectRepository extends Repository<ProjectData> {}
+interface ProjectRepository extends Repository<ProjectData> {
+  findAll(): Promise<(ProjectData & { id: number, taskCount: number, doneCount: number})[]>
+}
 
 interface TaskRepository extends Repository<TaskData> {
   findMany(query: TaskQueryInput): Promise<{ items: (TaskData & { id: number })[], total: number }>;

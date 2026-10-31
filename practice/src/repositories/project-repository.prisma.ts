@@ -2,7 +2,7 @@ import { PrismaClient, Project } from "../../generated/prisma/client.js";
 import { ProjectData } from "../schemas/project.schema.js";
 import type { ProjectRepository } from "./repository.types.js";
 
-function toProject(row: Project) {
+function toProject<T extends Project>(row: T) {
   return { ...row, createdAt: row.createdAt.toISOString() };
 }
 
@@ -13,7 +13,15 @@ export class ProjectPrismaRepository implements ProjectRepository {
   }
 
   async findAll() {
-    return (await this.client.project.findMany()).map(toProject);
+    const allProjects = await this.client.$queryRaw<(Project & { taskCount: number, doneCount: number})[]>`
+      SELECT p.id, p.name, p.description, p.user_id AS "userId", p.created_at AS "createdAt",
+      COUNT(t.id):: int AS "taskCount", COUNT(t.id) FILTER (WHERE t.status = 'done'):: int AS "doneCount"
+      FROM projects p LEFT JOIN
+      tasks t ON p.id = t.project_id
+      GROUP BY p.id
+    `
+
+    return allProjects.map(toProject);
   }
 
   async findById(id: number) {
