@@ -22,8 +22,8 @@ export default class AuthService {
   }
 
   // Access token = JWT, tự kiểm tra bằng chữ ký, không cần hỏi DB
-  signAccessToken(userId: number) {
-    return jwt.sign({ sub: String(userId) }, this.jwtSecret, { expiresIn: "15m" })
+  signAccessToken(userId: number, role: "user" | "admin") {
+    return jwt.sign({ sub: String(userId), role: role }, this.jwtSecret, { expiresIn: "15m" })
   }
 
   // Refresh token = chuỗi ngẫu nhiên; client giữ bản gốc, DB chỉ giữ hash
@@ -40,7 +40,7 @@ export default class AuthService {
     }
     const refresh = this.newRefreshToken()
     await this.authRepo.create(user.id, refresh.hash)
-    return { accessToken: this.signAccessToken(user.id), refreshToken: refresh.raw }
+    return { accessToken: this.signAccessToken(user.id, user.role), refreshToken: refresh.raw }
   }
 
   async refresh(rawToken: string) {
@@ -59,7 +59,9 @@ export default class AuthService {
       await this.authRepo.revokeAllByUser(token.userId)
       throw new UnauthorizedError("refresh token reused")
     }
-    return { accessToken: this.signAccessToken(token.userId), refreshToken: refresh.raw }
+
+    const user = await this.userRepo.findById(token.userId)
+    return { accessToken: this.signAccessToken(token.userId, user!.role), refreshToken: refresh.raw }
   }
 
   async logout(rawToken: string) {

@@ -17,11 +17,16 @@ const StoredProject = Project.extend({
   createdAt: z.string(),
 })
 
+const AddOrRemoveMember = z.object({
+  userId: z.coerce.number().int().min(1)
+})
+
 export {
   Project,
   UpdateProject,
   ProjectId,
   StoredProject,
+  AddOrRemoveMember
 };
 
 type ProjectCreateInput = z.infer<typeof Project>;

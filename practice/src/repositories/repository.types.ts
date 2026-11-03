@@ -8,9 +8,14 @@ interface Repository<T> {
   delete(id: number): Promise<boolean>;
 }
 
-interface ProjectRepository extends Repository<ProjectData> {
-  findAll(): Promise<(ProjectData & { id: number, taskCount: number, doneCount: number})[]>
+interface ProjectRepository extends Omit<Repository<ProjectData>, "create" | "findAll"> {
+  findAll(projectId?: number): Promise<(ProjectData & { id: number })[]>;
+  create(data: ProjectData, userId: number): Promise<ProjectData & { id: number }>;
+  findRole(projectId: number, userId: number): Promise<"owner" | "member" | null>
+  addMember(projectId: number, userId: number): Promise<void>
+  removeMember(projectId: number, userId: number): Promise<boolean>
 }
+
 
 interface TaskRepository extends Repository<TaskData> {
   findMany(query: TaskQueryInput): Promise<{ items: (TaskData & { id: number })[], total: number }>;
@@ -18,7 +23,7 @@ interface TaskRepository extends Repository<TaskData> {
   move(taskId: number, targetProjectId: number): Promise<TaskData  & { id: number } | null>
 }
 
-type UserRow = { id: number, email: string, hashedPassword: string, createdAt: string };
+type UserRow = { id: number, email: string, role: "admin" | "user", hashedPassword: string, createdAt: string };
 interface UserRepository {
   findByEmail(email: string): Promise<UserRow | null>
   findById(id: number): Promise<UserRow | null>

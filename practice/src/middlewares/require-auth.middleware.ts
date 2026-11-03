@@ -13,7 +13,7 @@ export default function requireAuth(req: Request, res: Response, next: NextFunct
   }
   try {
     const payload = jwt.verify(token, jwtKey) as jwt.JwtPayload
-    req.userId = Number(payload.sub)
+    req.actor = { id: Number(payload.sub), role: payload.role}
   } catch {
     throw new UnauthorizedError("Unauthorized")
   }

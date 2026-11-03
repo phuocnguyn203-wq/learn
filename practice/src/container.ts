@@ -26,6 +26,6 @@ const hasher = {
 };
 
 export const taskService = new TaskService(taskRepo, projectRepo);
-export const projectService = new ProjectService(projectRepo, taskRepo);
+export const projectService = new ProjectService(projectRepo, taskRepo, userRepo);
 export const userService = new UserService(userRepo, hasher);
 export const authService = new AuthService(userRepo, authRepo, hasher, jwtSecret);

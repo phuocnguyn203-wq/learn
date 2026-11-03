@@ -1,4 +1,4 @@
-import { PrismaClient, Project } from "../../generated/prisma/client.js";
+import { PrismaClient, Project, Prisma } from "../../generated/prisma/client.js";
 import { ProjectData } from "../schemas/project.schema.js";
 import type { ProjectRepository } from "./repository.types.js";
 
@@ -12,12 +12,14 @@ export class ProjectPrismaRepository implements ProjectRepository {
     this.client = client;
   }
 
-  async findAll() {
+  async findAll(userId?: number) { //admin sees all
     const allProjects = await this.client.$queryRaw<(Project & { taskCount: number, doneCount: number})[]>`
       SELECT p.id, p.name, p.description, p.user_id AS "userId", p.created_at AS "createdAt",
       COUNT(t.id):: int AS "taskCount", COUNT(t.id) FILTER (WHERE t.status = 'done'):: int AS "doneCount"
       FROM projects p LEFT JOIN
       tasks t ON p.id = t.project_id
+      ${userId === undefined ? Prisma.empty : Prisma.sql`WHERE p.id IN (SELECT project_id FROM project_members WHERE user_id = ${userId})`}
+
       GROUP BY p.id
     `
 
@@ -32,9 +34,9 @@ export class ProjectPrismaRepository implements ProjectRepository {
     return row ? toProject(row) : null;
   }
 
-  async create(data: ProjectData) {
+  async create(data: ProjectData, userId: number) {
     const row = await this.client.project.create({
-      data: { ...data, userId: 1 }
+      data: { ...data, userId, members: { create: { userId, role: "owner" } } },
     });
 
     return toProject(row);
@@ -59,4 +61,27 @@ export class ProjectPrismaRepository implements ProjectRepository {
     return row.count !== 0 ? true : false
   }
 
+  async findRole(projectId: number, userId: number) {
+    const projectMember = await this.client.projectMember.findUnique({
+      where: {userId_projectId: { userId, projectId }}
+    })
+
+    return projectMember ? projectMember.role : null
+  }
+
+  async addMember(projectId: number, userId: number) {
+    await this.client.projectMember.create({
+      data: {
+        projectId, userId, role: "member"
+      }
+    })
+  }
+
+  async removeMember(projectId: number, userId: number) {
+    const projectMember = await this.client.projectMember.deleteMany({
+      where: { projectId, userId }
+    })
+    return projectMember.count !== 0 ? true : false
+    
+  }
 }

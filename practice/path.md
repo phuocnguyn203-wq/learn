@@ -642,7 +642,7 @@ Seed xong: 50 users, 200 projects, 10000 tasks trong ~X giây
 
 **Cần làm:** người tạo project tự động thành `owner`. Áp dụng bảng quyền:
 
-| Hành động              | owner | member | không phải thành viên | admin |
+| Hành động              | owner | member | không phải thành viên const actor = req.actor!| admin |
 | ------------------------- | :---: | :----: | :-----------------------: | :---: |
 | Xem project và task      |  ✅  |   ✅   |            ❌            |  ✅  |
 | Tạo / sửa task          |  ✅  |   ✅   |            ❌            |  ✅  |

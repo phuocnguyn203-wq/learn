@@ -1,6 +1,12 @@
 import { NotFoundError } from "../errors/app-error.js";
 import { TaskRepository, ProjectRepository } from "../repositories/repository.types.js";
 import { TaskCreateInput, TaskData, TaskQueryInput, TaskUpdateInput } from "../schemas/task.schema.js";
+
+const notFoundError = new NotFoundError("task not found")
+type User = {
+  id: number,
+  role: "admin" | "user"
+}
 export default class TaskService {
   taskRepo: TaskRepository;
   projectRepo: ProjectRepository;
@@ -15,14 +21,26 @@ export default class TaskService {
     }
   }
 
-  async getById(id: number) {
+  async getById(id: number, actor: User) {
     const task = await this.taskRepo.findById(id);
-    if (task === null) { throw new NotFoundError("task not found"); }
+    if (task === null) { throw notFoundError; }
+    const memberRole = await this.projectRepo.findRole(task.projectId, actor.id)
+
+    if (actor.role !== "admin") {
+      if (!memberRole) { throw notFoundError }
+    }
+
     return task;
   }
 
-  async list(query: TaskQueryInput) {
+  async list(query: TaskQueryInput, actor: User) {
     await this.assertProjectExists(query.projectId);
+    const memberRole = await this.projectRepo.findRole(query.projectId, actor.id)
+    if (actor.role !== "admin") {
+      if (!memberRole) {
+        throw notFoundError
+      }
+    }
     const { items, total } = await this.taskRepo.findMany(query);
     return {
       data: items,
@@ -35,8 +53,14 @@ export default class TaskService {
     };
   }
 
-  async create({ projectId, title, priority, dueDate }: TaskCreateInput) {
+  async create({ projectId, title, priority, dueDate }: TaskCreateInput, actor: User) {
     await this.assertProjectExists(projectId);
+    const memberRole = await this.projectRepo.findRole(projectId, actor.id)
+    if (actor.role !== "admin") {
+      if (!memberRole) {
+        throw new NotFoundError("project not found")
+      }
+    }
     return await this.taskRepo.create({
       projectId,
       title,
@@ -48,7 +72,8 @@ export default class TaskService {
     });
   }
 
-  async update(id: number, { dueDate, ...rest }: TaskUpdateInput) {
+  async update(id: number, { dueDate, ...rest }: TaskUpdateInput, actor: User) {
+    
     const fields: Partial<TaskData> = { ...rest };
     if (dueDate) {
       fields.dueDate = dueDate.toISOString();
@@ -56,18 +81,52 @@ export default class TaskService {
     if (rest.status) {
       fields.completedAt = rest.status === "done" ? new Date().toISOString() : null;
     }
+    const oldTask = await this.taskRepo.findById(id)
+    if (!oldTask) {
+      throw new NotFoundError("task not found")
+    }
+
+    const memberRole = await this.projectRepo.findRole(oldTask.projectId, actor.id)
+    if (actor.role !== "admin") {
+      if (!memberRole) {
+        throw new NotFoundError("project not found")
+      }
+    }
     const task = await this.taskRepo.update(id, fields);
-    if (task === null) { throw new NotFoundError("task not found"); }
+    if (task === null) { throw notFoundError }
+    
     return task;
   }
 
-  async delete(id: number) {
-    if (!(await this.taskRepo.delete(id))) {
-      throw new NotFoundError("task not found");
+  async delete(id: number, actor: User) {
+    const oldTask = await this.taskRepo.findById(id)
+    if (!oldTask) {
+      throw new NotFoundError("not found error")
     }
+
+    const memberRole = await this.projectRepo.findRole(oldTask.projectId, actor.id)
+    if (actor.role !== "admin") {
+      if (!memberRole) {
+        throw new NotFoundError("project not found")
+      }
+    }
+
+    await this.taskRepo.delete(id)
   }
 
-  async move(taskId: number, projectId: number) {
+  async move(taskId: number, projectId: number, actor: User) {
+    const task = await this.taskRepo.findById(taskId)
+    if (!task) {
+      throw new NotFoundError("project or task not found")
+    }
+    const memberRoleFrom = await this.projectRepo.findRole(task.projectId, actor.id)
+    const memberRoleTo = await this.projectRepo.findRole(projectId, actor.id)
+    if (actor.role !== "admin") {
+      if (!(memberRoleFrom && memberRoleTo)) {
+        throw new NotFoundError("project or task not found")
+      }
+    }
+    
     const result = await this.taskRepo.move(taskId, projectId)
     if (result == null) {
       throw new NotFoundError("project or task not found")

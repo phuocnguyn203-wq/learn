@@ -36,7 +36,8 @@ function logout(authService: AuthService) {
 // Chạy sau requireAuth nên req.userId luôn có
 function me(userService: UserService) {
   return async (req: Request, res: Response) => {
-    res.status(200).json(await userService.getById(req.userId!));
+    const actor = req.actor!
+    res.status(200).json(await userService.getById(actor.id));
   };
 }
 

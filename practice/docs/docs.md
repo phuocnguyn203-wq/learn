@@ -1,0 +1,1 @@
+I choose 404 instead of 403 because 403 can leak data about the existence of a resource, while 404 simply indicates that the resource is not found without revealing whether it exists or not. This helps to enhance security by preventing potential attackers from gaining information about the system's structure or available resources.
