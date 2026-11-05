@@ -4,7 +4,7 @@ const Status = z.literal(["todo", "in_progress", "done"]);
 const Priority = z.literal(["low", "medium", "high"]);
 
 const TaskQuery = z.object({
-  projectId: z.coerce.number().int().min(1),
+  projectId: z.coerce.number().int().min(1).max(2147483647),
   status: Status.optional(),
   sort: z.literal(["createdAt", "-createdAt", "dueDate", "-dueDate"]).default("-createdAt"),
   page: z.coerce.number().int().min(1).default(1),
@@ -12,7 +12,7 @@ const TaskQuery = z.object({
 })
 
 const Task = z.object({
-  projectId: z.coerce.number().int().min(1),
+  projectId: z.coerce.number().int().min(1).max(2147483647),
   title: z.string().trim().min(1).max(100),
   priority: Priority.default("medium"),
   dueDate: z.coerce.date().refine(
@@ -30,16 +30,16 @@ const UpdateTask = z.object({
 })
 
 const StoredTask = Task.omit({ dueDate: true }).extend({
-  id: z.number().int(),
+  id: z.number().int().max(2147483647),
   status: Status,
   dueDate: z.string().optional(),
   createdAt: z.string(),
   completedAt: z.string().nullable()
 })
 
-const TaskId = z.object({ id: z.coerce.number().int().min(0) });
+const TaskId = z.object({ id: z.coerce.number().int().min(0).max(2147483647) });
 
-const TargetProjectId = z.object({ targetProjectId: z.coerce.number().int().min(0) })
+const TargetProjectId = z.object({ targetProjectId: z.coerce.number().int().min(0).max(2147483647) })
 
 
 export {

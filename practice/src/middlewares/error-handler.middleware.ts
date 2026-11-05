@@ -16,6 +16,13 @@ const errorHandlerMiddleware = (err: unknown, _req: Request, res: Response, _nex
 		}
 		return res.status(err.statusCode).json(returnError);
 	}else {
+		if (err instanceof Error && "type" in err && err.type === "entity.too.large") {
+			return res.status(413).json({ code: "PAYLOAD_TOO_LARGE", message: "body too large" })
+		}
+
+		if (err instanceof Error && "type" in err && err.type === "entity.parse.failed") {
+			return res.status(400).json({ code: "INVALID_JSON", message: "invalid JSON body" });
+		}
     console.log(err)
 		return res.status(500).json({ error: "Internal Error" });
 	}

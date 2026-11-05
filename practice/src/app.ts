@@ -1,4 +1,6 @@
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
 
 import { errorHandlerMiddleware } from "./middlewares/error-handler.middleware.js";
 import { requestLoggerMiddleware } from "./middlewares/request-logger.middleware.js";
@@ -21,8 +23,10 @@ export default function createApp(
   const app = express();
 
   //MIDDLEWARE
+  app.use(helmet());
+  app.use(cors({ origin: process.env.CORS_ORIGINS?.split(",") ?? []}));
   app.use(requestLoggerMiddleware);
-  app.use(express.json());
+  app.use(express.json({ limit: "100kb" }));
 
   // /auth không cần đăng nhập (trừ /me, đã gắn requireAuth trong router)
   app.use("/auth", createAuthRouter(authService, userService));
