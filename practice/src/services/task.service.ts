@@ -78,13 +78,16 @@ export default class TaskService {
     if (dueDate) {
       fields.dueDate = dueDate.toISOString();
     }
-    if (rest.status) {
-      fields.completedAt = rest.status === "done" ? new Date().toISOString() : null;
-    }
+
     const oldTask = await this.taskRepo.findById(id)
     if (!oldTask) {
       throw new NotFoundError("task not found")
     }
+
+    if (rest.status && oldTask.status !== rest.status) {
+      fields.completedAt = rest.status === "done" ? new Date().toISOString() : null;
+    }
+    
 
     const memberRole = await this.projectRepo.findRole(oldTask.projectId, actor.id)
     if (actor.role !== "admin") {

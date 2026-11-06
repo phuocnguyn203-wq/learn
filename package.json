@@ -15,7 +15,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx vitest",
     "dev": "tsx watch --env-file=practice/src/.env practice/src/server.ts",
     "build": "tsc",
     "start": "node dist/practice/src/server.js",
@@ -50,6 +50,7 @@
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",
     "typescript": "6.0",
-    "typescript-eslint": "^8.71.1"
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.1.0"
   }
 }
